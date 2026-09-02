@@ -6,7 +6,7 @@
 **Technology Scope:** Web, API, Database, Cloud, Security, Automation  
 **Last Updated:** September 2026
 
----asd
+---
 
 ## Table of Contents
 
