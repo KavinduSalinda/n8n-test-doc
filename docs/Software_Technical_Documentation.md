@@ -40,6 +40,7 @@
 
 ---
 
+
 # 1. Software Overview
 
 This document describes a modern full-stack software platform designed to manage business operations through a responsive web application and a secure REST API.
