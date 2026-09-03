@@ -1,7 +1,7 @@
 # POS System — Software Technical Documentation
 
 **Product:** Point of Sale (POS) Platform  
-**Version:** 1.0  
+**Version:** 1.1  
 **Status:** PRD-derived Technical Architecture  
 **Audience:** Developers, QA Engineers, DevOps Engineers, Project Managers, Technical Leads  
 **Technology Scope:** POS Terminal, Web Admin, REST API, Database, Payments, Inventory, Hardware, Cloud  
@@ -38,6 +38,7 @@
 25. [Troubleshooting Guide](#25-troubleshooting-guide)
 26. [Glossary](#26-glossary)
 27. [Conclusion](#27-conclusion)
+28. [Review Question](#28-review-question)
 
 ---
 
@@ -344,6 +345,7 @@ Rules:
 - Each offline sale has a client-generated idempotency key.
 - Sync worker uploads queued sales in order and applies inventory on the server.
 - Conflicts (unknown SKU, negative stock policy) are flagged for manager review, not silently dropped.
+- **Offline grace period (v1.1):** a register may accept new offline cash sales for a maximum of **4 hours** after the last successful API heartbeat. When that window expires, the terminal must block new tickets and show “Reconnect required” until connectivity is restored. Queued sales already taken during the window remain stored and must sync in order; they are not discarded.
 
 ```text
 Offline Sale
@@ -1177,3 +1179,13 @@ This document turns the POS PRD into an implementable system architecture.
 The platform is a store-scoped, API-centered POS: terminals run checkout, the server owns price, tax, stock, and money, and payments stay outside the merchant card-data scope. Offline cash capability, idempotent sale complete, supervisor controls, and close-of-day cash management are required for production retail use.
 
 Engineering should implement against the entities, endpoint groups, and consistency rules in this document, then validate cashier, supervisor, and manager journeys from the original PRD before go-live.
+
+The v1.1 offline grace period is a production safety control: unlimited offline selling increases stock drift, receipt-number gaps, and cash-reconciliation risk.
+
+---
+
+# 28. Review Question
+
+**Question:** In the v1.1 update to section 5.3 (Offline and Sync Architecture), how long may a register continue to accept **new** offline cash sales after the last successful API heartbeat, and what happens to sales that were already queued when that limit is reached?
+
+**Expected answer:** The register may accept new offline cash sales for **4 hours**. After that, new tickets are blocked until the terminal reconnects. Sales already queued during the grace period stay stored and must sync in order; they are not discarded.
